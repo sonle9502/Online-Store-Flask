@@ -1,0 +1,50 @@
+/* Ensure the container has no padding */
+.task-list .container {
+  display: block;
+  visibility: visible;
+  z-index: 1;
+  position: relative;
+  top: 130px; /* ページの上部から130pxの位置に配置 */
+}
+
+/* TaskList.css */
+.btn-group {
+  margin-bottom: 0; /* Remove bottom margin */
+  padding-top: 0; /* Remove top padding */
+}
+
+.btn-group .btn {
+  margin-right: 5px; /* Space between buttons */
+}
+
+.btn-group .btn:last-child {
+  margin-right: 0; /* No space after the last button */
+}
+
+/* TaskList.css */
+.list-group {
+  width: 1100px;
+  margin: 0 auto;
+}
+
+/* list-group-item のスタイル */
+.list-group-item {
+  position: relative;
+  display: block;
+  padding: 10px;
+  color: #212529;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #7d7a7a; /* ボーダーの設定 */
+  margin-bottom: -1px; /* ボーダーが隠れないようにマージンを調整 */
+}
+
+/* リストアイテム間のスペースを追加 */
+.list-group-item + .list-group-item {
+  border-top: 2px solid #070707; /* 隣接するアイテム間の上ボーダーを設定 */
+}
+
+/* 最後のリストアイテムに下のボーダーを表示しない */
+.list-group-item:last-child {
+  border-bottom: 1px solid #070707;
+}

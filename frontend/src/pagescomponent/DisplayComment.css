@@ -1,0 +1,44 @@
+.comment-card {
+    margin-bottom: 1rem; /* 下にスペースを追加 */
+  }
+  
+  .comment-content {
+    background-color: #e7e9ed; /* 通常時の背景色 */
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer; /* クリックできることを示すカーソル */
+    transition: background-color 0.3s ease; /* 背景色の変更にアニメーションを追加 */
+  }
+  
+  .comment-timestamp {
+    color: #6c757d; /* muted text color */
+    font-size: 2px;
+    margin-top: 0.5rem; /* 上にスペースを追加 */
+  }
+  
+  .edit-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .edit-buttons .btn-success {
+    margin-right: 0.5rem;
+  }
+  
+  .edit-buttons .btn-secondary {
+    margin-right: 0;
+  }
+  
+  .view-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .view-buttons .btn-secondary {
+    margin-right: 0.5rem;
+  }
+  
+  .view-buttons .btn-danger {
+    margin-right: 0;
+  }
+  

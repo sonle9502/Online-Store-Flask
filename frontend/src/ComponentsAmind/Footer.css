@@ -1,0 +1,16 @@
+/* Footer.css */
+.footer {
+  background-color: #007bff;
+  color: #110909;
+  padding: 10px 0;
+  width: 100%;
+  z-index: 999;
+  position: fixed;
+  bottom: 0;
+  display: block; /* Footerを表示 */
+}
+
+/* TaskList の余白調整 */
+.list-group {
+  padding-bottom: 60px; /* Footerの高さを考慮 */
+}

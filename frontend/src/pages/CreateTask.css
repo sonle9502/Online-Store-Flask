@@ -1,0 +1,66 @@
+/* src/components/CreateTask.css */
+
+/* フォームの全体スタイル */
+form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* 見出しのスタイル */
+  h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #343a40;
+  }
+  
+  /* フォームグループのスタイル */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  /* ラベルのスタイル */
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #343a40;
+  }
+  
+  /* 入力フィールドのスタイル */
+  .form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #495057;
+    background-color: #fff;
+  }
+  
+  /* テキストエリアのスタイル */
+  .form-control#description {
+    height: 100px; /* 必要に応じて高さを調整 */
+  }
+  
+  /* ボタンのスタイル */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.25rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  

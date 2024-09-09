@@ -1,0 +1,13 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
+import { createRoot } from 'react-dom';  // ここで createRoot をインポート
+import App from './App';
+import './index.css'; // Your global styles
+
+const container = document.getElementById('root');
+const root = createRoot(container);  // createRootを使用
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

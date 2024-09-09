@@ -1,0 +1,2 @@
+      PID    PPID    PGID     WINPID   TTY         UID    STIME COMMAND
+     4336       1    4336       4336  cons0     197612 09:56:40 /usr/bin/ps

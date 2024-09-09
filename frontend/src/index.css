@@ -1,0 +1,18 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif; /* ここでフォントファミリーを変更 */
+  font-size: 16px; /* ここでフォントサイズを変更 */
+  font-weight: normal; /* ここでフォントの太さを変更 */
+  line-height: 1.5; /* ここで行の高さを変更 */
+  color: #333; /* ここで文字の色を変更 */
+  text-align: left; /* ここでテキストの位置揃えを変更 */
+  background-color: #f5f5f5; /* ここで背景色を変更 */
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}

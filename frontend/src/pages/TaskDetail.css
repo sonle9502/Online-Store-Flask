@@ -1,0 +1,94 @@
+.task-detail {
+    padding: 50px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.task-detail p {
+    margin-bottom: 10px;
+}
+
+.btn-group {
+    margin-top: 10px;
+}
+
+.wide-form {
+    max-width: 800px; /* 幅を800pxに設定（必要に応じて調整） */
+    margin: 0 auto; /* 中央に配置 */
+  }
+  
+.mt-4 {
+    padding-top: 0px;
+    margin-top: 1.0rem !important;
+}
+
+/* Optional custom for comment */
+/* Ensure no hyphen is added before the timestamp */
+.timestamp::before {
+    content: "";
+  }
+  
+  /* Styling for the timestamp */
+  .timestamp {
+    font-size: 0.875rem; /* Adjust font size for the timestamp */
+    color: #666; /* Lighter color for the timestamp */
+  }
+/* customize color of button add comment */
+/* Override Bootstrap button styles */
+.btn-custom {
+    background-color: #333 !important; /* Dark color */
+    color: white !important; /* Text color */
+    border: none !important;
+  }
+  
+  .btn-custom:hover {
+    background-color: #555 !important; /* Lighter dark color on hover */
+  }
+  
+
+/* Custom CSS for the Update Task button */
+.btn-custom-update {
+    background-color: #007bff !important;; /* Default background color */
+    color: white !important; /* Text color */
+    border: none !important;
+}
+
+.btn-custom-update:hover {
+    background-color: #0056b3; /* Background color on hover */
+    color: white; /* Text color on hover */
+}
+
+.btn-custom-update:focus, .btn-custom-update:active {
+    box-shadow: none; /* Remove box shadow on focus or active */
+    outline: none; /* Remove outline on focus */
+}
+
+.notification-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    background-color: #333;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 中央に配置 */
+}
+
+.close-button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px; /* ボタンとメッセージの間にスペースを追加 */
+    align-self: center; /* ボタンを行の中央に配置 */
+}
+
+
+  

@@ -1,0 +1,59 @@
+/* Header1.css */
+.header {
+  height: 60px;
+  width: 100%;
+  position: fixed; /* fixedに変更 */
+  top: 0; /* ページの上部に固定 */
+  background-color: #d2e0ed;
+  padding: 0px 20px;
+  border-bottom: 0px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  z-index: 999;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff; /* Primary color */
+  display: flex;
+  align-items: center; /* Center items vertically */
+  justify-content: center; /* Center items horizontally */
+  text-align: center; /* Ensure text is centered */
+  text-decoration: none;
+  position: relative; /* Relative positioning for the underline */
+}
+
+.navbar-brand svg {
+  margin-right: 10px; /* Space between icon and text */
+}
+
+.navbar-brand::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; /* Position the underline below the text */
+  left: 0;
+  width: 0; /* Start with no width */
+  height: 2px; /* Thickness of the underline */
+  background-color: #007bff; /* Same color as the text */
+  transition: width 0.3s ease; /* Smooth transition for the underline */
+}
+
+.navbar-brand:hover::after {
+  width: 100%; /* Expand the underline to full width on hover */
+}
+
+/* Header1.css */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* 左右にコンテンツを分ける */
+  align-items: center; /* 縦方向の中央揃え */
+  width: 100%; /* 親要素全体に広げる */
+}
+
+.ml-auto {
+  margin-left: auto; /* 右に配置 */
+  display: flex; /* Flexboxを確保 */
+  align-items: center; /* 縦方向の中央揃え */
+  justify-content: flex-end; /* コンテンツを右寄せ */
+}

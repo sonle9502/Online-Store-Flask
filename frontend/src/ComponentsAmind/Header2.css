@@ -1,0 +1,56 @@
+/* Header2.css */
+.header2 {
+  height: 70px;
+  width: 100%;
+  position: fixed; /* fixedに変更 */
+  top: 60px; /* Header1の下に固定 */
+  background-color: #42464a;
+  border-bottom: 1px solid #ddd;
+  padding: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+}
+
+.header2 .search-container {
+  display: flex;
+  align-items: center;
+  max-width: 900px;
+  width: 100%;
+  justify-content: center;
+  height: 100%;
+}
+
+.search-container form {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 90%; /* 高さをheader2と揃える */
+  justify-content: center;
+}
+
+.search-container .btn {
+  height: 50px; /* Button height */
+  line-height: 5s0px; /* Matches the button height for vertical centering */
+  margin-right: 10px; /* Space between buttons */
+  padding: 0 10px; /* Adjust padding if necessary */
+  text-align: center; /* Center text horizontally */
+  display: flex; /* Flexbox for better centering */
+  align-items: center; /* Vertical centering */
+  justify-content: center; /* Horizontal centering */
+}
+
+.header2 .search-container input[type="search"] {
+  margin-right: 10px;
+}
+
+.header2 .search-container .btn {
+  margin-left: 10px;
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
