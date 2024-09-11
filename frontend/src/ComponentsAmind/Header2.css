@@ -7,7 +7,7 @@
   background-color: #42464a;
   border-bottom: 1px solid #ddd;
   padding: 0;
-  z-index: 999;
+  z-index: 998;
   display: flex;
   justify-content: center;
 }

@@ -11,7 +11,9 @@
   align-items: center;
   z-index: 999;
 }
-
+.custom-logout-item {
+  color: red; /* 赤い文字色に設定 */
+}
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: bold;
@@ -56,4 +58,15 @@
   display: flex; /* Flexboxを確保 */
   align-items: center; /* 縦方向の中央揃え */
   justify-content: flex-end; /* コンテンツを右寄せ */
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-icon {
+  color: #198754; /* 青色 */
+  font-size: 1.0rem; /* アイコンのサイズを調整 */
 }

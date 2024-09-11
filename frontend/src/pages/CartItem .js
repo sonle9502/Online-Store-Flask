@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../ComponentsAmind/Header1';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 
 const Container = styled.div`
-  padding: 80px;
+  padding: 20px;
   max-width: 900px; /* Adjust the maximum width as needed */
   margin: 0 auto; /* Center the container */
 `;
@@ -47,8 +48,22 @@ const DeleteButton = styled.button`
   }
 `;
 
+const AddressItem = styled.li`
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 70px; 
+  margin-bottom: 10px; /* 下部のマージンを設定 */
+  cursor: pointer;
+  background-color: ${props => (props.selected ? '#f0f0f0' : '#fff')};
+  text-align: left; /* テキストを左寄せにする */
+`;
+
 const CartItem = () => {
   const [cartItems, setCartItems] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [userId] = useState(localStorage.getItem('userId') || '');
+  const navigate = useNavigate();
 
   const fetchCsrfToken = async () => {
     const response = await fetch(`${API_BASE_URL}/api/get-csrf-token`, {
@@ -66,7 +81,6 @@ const CartItem = () => {
 
   const fetchCartItems = async () => {
     try {
-      const userId = localStorage.getItem('userId');
       if (!userId) {
         console.error('User ID is missing in localStorage');
         return;
@@ -128,21 +142,60 @@ const CartItem = () => {
     }
   };
   
+  const handleQuantityChange = async (cartItemId, newQuantity) => {
+    try {
+      const csrfToken = await fetchCsrfToken();  // CSRFトークンを取得
+      if (!csrfToken) {
+        console.error('CSRF token is missing');
+        return;
+      }
+      
+      // 状態を即時更新
+      setCartItems(prevItems =>
+        prevItems.map(item =>
+          item.cart_item_id === cartItemId
+            ? { ...item, quantity: newQuantity }
+            : item
+        )
+      );
   
+      // データベースのquantityを変更するためのAPIリクエストを送信
+      const response = await fetch(`${API_BASE_URL}/api/cart-items`, {
+        method: 'PUT',  // または 'POST' に変更する
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,  // CSRFトークンを送信
+        },
+        credentials: 'include',  // 必要であれば、クッキーを含める
+        body: JSON.stringify({ quantity: newQuantity, cartItemId: cartItemId }),
+      });
   
-
-  const handleQuantityChange = (cartItemId, newQuantity) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.cart_item_id === cartItemId
-          ? { ...item, quantity: newQuantity }
-          : item
-      )
-    );
+      if (!response.ok) {
+        console.error(`Failed to update quantity: ${response.status} ${response.statusText}`);
+      } else {
+        console.log('Quantity updated successfully in the database.');
+      }
+    } catch (error) {
+      console.error('Error updating quantity:', error.message);
+    }
   };
 
   const handlePurchase  = async () => {
     try {
+      console.log(addresses.length)
+      // Check if addresses are provided
+      if (!addresses || addresses.length === 0) {
+        // Prompt user to input addresses
+        const isConfirmed = window.confirm('住所が入力されていません。住所を入力してください。続行しますか？');
+        if (!isConfirmed) {
+          console.log('User canceled the purchase process');
+          return;
+        }
+        navigate('/EditUserInfo');
+        return
+        // Optionally, you can redirect to an address input page here
+        // navigate('/address-input'); // Example: redirect to address input page
+      }
       const csrfToken = await fetchCsrfToken();
       if (!csrfToken) {
         console.error('CSRF token is missing');
@@ -162,11 +215,13 @@ const CartItem = () => {
           user_id: userId,  // userId を含める
           cart_items: cartItems,
           total_amount: calculateTotal(),
+          addresses,addresses,
         }),
       });
 
       if (response.ok) {
         console.log('Cart items updated successfully');
+        navigate('/user');
       } else {
         console.error(`Failed to update cart items: ${response.status} ${response.statusText}`);
       }
@@ -201,13 +256,55 @@ const CartItem = () => {
     }).format(amount);
   };
 
+  const fetchUserAddresses = async () => {
+    try {
+      const csrfToken = await fetchCsrfToken();
+      if (!csrfToken) {
+        console.error('CSRF token is missing');
+        return;
+      }
+  
+      const response = await fetch(`${API_BASE_URL}/api/user-addresses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ user_id: userId })
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched addresses:', data); // デバッグ
+        setAddresses(data.address || []);
+      } else {
+        console.error(`Failed to fetch addresses: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error.message);
+    }
+  };
+
+  const handleAddressClick = () => {
+    navigate('/EditUserInfo');
+  };
+
   useEffect(() => {
+    fetchUserAddresses();
     fetchCartItems();
   }, []);
 
   return (
     <div>
       <Header />
+      <AddressItem onClick={handleAddressClick} style={{ cursor: 'pointer' }}>
+        {addresses.length === 0 ? (
+          <>配達住所： 住所を入力してください</> // 住所がない場合のメッセージ
+        ) : (
+          <>配達住所： {addresses}</> // 住所がある場合に配達住所を表示
+        )}
+      </AddressItem>
       <Container>
         <h2>Your Cart</h2>
         {cartItems.length > 0 ? (
@@ -229,7 +326,7 @@ const CartItem = () => {
                     <input
                       type="number"
                       value={item.quantity.replace(/Kg$/, '')} // Remove 'Kg' for display
-                      onChange={(e) => handleQuantityChange(item.cart_item_id, `${e.target.value}Kg`)}
+                      onChange={(e) => handleQuantityChange(item.cart_item_id, `${e.target.value}`)}
                       placeholder="1"
                       min="1"
                       style={{ marginLeft: '10px', width: '50px' }}

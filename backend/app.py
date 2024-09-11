@@ -568,7 +568,7 @@ def purchase():
 
         if total_amount == total_amount_from_db:
             # 金額が一致する場合、注文を作成
-            order_id = MysqlClass.create_order(user_id, total_amount)
+            order_id = MysqlClass.create_order(user_id, total_amount )
 
             if order_id:
                 # カートアイテムを注文アイテムとして移行
@@ -585,7 +585,6 @@ def purchase():
         else:
             # 金額が一致しない場合、エラーメッセージを返す
             return jsonify({"message": "Total amount mismatch"}), 400
-
             
 @app.route('/api/delete-cart', methods=['DELETE'])
 def delete_cart_item():
@@ -609,39 +608,160 @@ def delete_cart_item():
             return jsonify({"message": "Item not found or error occurred"}), 404
     return jsonify({"message": "Invalid request method"}), 405
 
-# カートアイテムを取得するエンドポイント
-@app.route('/api/cart-items', methods=['POST'])
-def get_cart_items():
-    data = request.get_json()  # JSON 形式のリクエストデータを取得
-    user_id = data.get('user_id') 
-    if not user_id:
-        return jsonify({'error': 'User ID is required'}), 400
-
+@app.route('/api/update-delivery-status', methods=['POST'])
+def update_delivery_status():
+    data = request.json
+    order_item_id = data.get('order_item_id')
+    new_status = data.get('new_status')
+    userId = data.get('userId')
     # MySQLから画像データを取得
-    result = MysqlClass.get_cart_item(user_id)
+    success = MysqlClass.update_delivery_status(order_item_id, new_status, userId)
+    if success:
+        return jsonify({"message": "Item update successfully"}), 200
+    else:
+        return jsonify({"message": "Item not found or error occurred"}), 404
+
+
+# GET order-item
+@app.route('/api/all-orders', methods=['POST'])
+def get_all_orders():
+    # MySQLから画像データを取得
+    result = MysqlClass.get_all_orders()
     if result:
         
         # Format the result
         formatted_result = []
         for item in result:
             # 画像データをBase64エンコード
-            image_base64 = base64.b64encode(item[3]).decode('utf-8') if item[3] else None
+            image_base64 = base64.b64encode(item[5]).decode('utf-8') if item[5] else None
+             # `order_date`をISOフォーマットに変換
+            order_date_iso = item[0].isoformat() if isinstance(item[0], datetime) else item[0]
             item_data = {
-                "user_id": item[0],
-                "quantity": item[1],
+                "order_date": order_date_iso,
+                "tracking_number": item[1],
                 "product_id": item[2],
-                "image": image_base64,
+                "quantity": item[3],
                 "unitPrice": item[4],
-                "content": item[5],
-                "cart_item_id": item[6],
-                "quantity_title": item[7],
-                "cart_id": item[8]
-
+                "image": image_base64,
+                "delivery_status": item[6],     
+                "shipping_address":item[7],
+                "user_id":item[8],
+                "order_item_id":item[9],
+                "Editor":item[10],
             }
             formatted_result.append(item_data)
-        return jsonify({"cart_items": formatted_result}), 200
+        return jsonify({"order_items": formatted_result}), 200
     else:
         return jsonify({"message": "No cart items found or error occurred"}), 404
+    
+# GET order-item
+@app.route('/api/order-items', methods=['POST'])
+def get_oder_items():
+    data = request.get_json()  # JSON 形式のリクエストデータを取得
+    user_id = data.get('user_id') 
+    if not user_id:
+        return jsonify({'error': 'User ID is required'}), 400
+
+    # MySQLから画像データを取得
+    result = MysqlClass.get_order_item(user_id)
+    if result:
+        
+        # Format the result
+        formatted_result = []
+        for item in result:
+            # 画像データをBase64エンコード
+            image_base64 = base64.b64encode(item[5]).decode('utf-8') if item[5] else None
+             # `order_date`をISOフォーマットに変換
+            order_date_iso = item[0].isoformat() if isinstance(item[0], datetime) else item[0]
+            item_data = {
+                "order_date": order_date_iso,
+                "tracking_number": item[1],
+                "product_id": item[2],
+                "quantity": item[3],
+                "unitPrice": item[4],
+                "image": image_base64,
+                "delivery_status": item[6],     
+            }
+            formatted_result.append(item_data)
+        return jsonify({"order_items": formatted_result}), 200
+    else:
+        return jsonify({"message": "No cart items found or error occurred"}), 404
+
+@app.route('/api/user-addresses', methods=['POST', 'PUT'])
+def manage_user_addresses():
+    if request.method == 'POST':
+        data = request.get_json()
+        user_id = data.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+
+        # ここで MySQL からユーザーの住所データを取得
+        result = MysqlClass.get_user_address(user_id)
+        if result:
+            return jsonify({"address": result}), 200
+        else:
+            return jsonify({"message": "No addresses found or an error occurred","address": result}), 404
+
+    if request.method == 'PUT':
+        data = request.get_json()
+        user_id = data.get('user_id')
+        address = data.get('address')
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+
+        # ここで MySQL で住所を更新
+        success = MysqlClass.update_address(user_id, address)
+        if success:
+            return jsonify({"message": "Update address successfully"}), 200
+        else:
+            return jsonify({"message": "Address not found or error occurred"}), 404
+
+# カートアイテムを取得するエンドポイント
+@app.route('/api/cart-items', methods=['POST','PUT'])
+def get_cart_items():
+    if request.method == 'POST':
+        data = request.get_json()  # JSON 形式のリクエストデータを取得
+        user_id = data.get('user_id') 
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+
+        # MySQLから画像データを取得
+        result = MysqlClass.get_cart_item(user_id)
+        
+        if result:
+            
+            # Format the result
+            formatted_result = []
+            for item in result:
+                # 画像データをBase64エンコード
+                image_base64 = base64.b64encode(item[3]).decode('utf-8') if item[3] else None
+                item_data = {
+                    "user_id": item[0],
+                    "quantity": item[1],
+                    "product_id": item[2],
+                    "image": image_base64,
+                    "unitPrice": item[4],
+                    "content": item[5],
+                    "cart_item_id": item[6],
+                    "quantity_title": item[7],
+                    "cart_id": item[8]
+
+                }
+                formatted_result.append(item_data)
+            return jsonify({"cart_items": formatted_result}), 200
+        else:
+            return jsonify({"message": "No cart items found or error occurred"}), 404
+    if request.method == 'PUT':
+            data = request.get_json()  # JSON 形式のリクエストデータを取得
+            cartItemId = data.get('cartItemId')
+            quantity = data.get('quantity')
+
+            # データベースから再計算した合計金額を取得
+            success = MysqlClass.update_quantity(cartItemId, quantity)
+            if success:
+                return jsonify({"message": "Item update successfully"}), 200
+            else:
+                return jsonify({"message": "Item not found or error occurred"}), 404
 
 #login
 @app.route('/api/dangnhap', methods=['POST'])
@@ -688,8 +808,20 @@ def login():
                         'userID': user.id,
                         'redirect_url': url_for('get_tasks')
                     })
-                else:
-                    return jsonify({"error": "Invalid role"}), 403
+                elif user.role == 'delivery':
+                    return jsonify({
+                        'status': 'success',
+                        'role': user.role,
+                        'userID': user.id,
+                        'redirect_url': url_for('get_tasks')
+                    })
+                elif user.role == 'picker':
+                    return jsonify({
+                        'status': 'success',
+                        'role': user.role,
+                        'userID': user.id,
+                        'redirect_url': url_for('get_tasks')
+                    })
             else:
                 return jsonify({"error": "Invalid password"}), 403
             

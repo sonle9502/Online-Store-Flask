@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { Navbar, Nav, NavDropdown, Button } from 'react-bootstrap';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import './Header1.css'; // 必要に応じてスタイルを適用
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import { useNavigate } from 'react-router-dom';
 
-function Header({role}) {
+function Header() {
   const navigate = useNavigate();
+  const [role] = useState(localStorage.getItem('role') || '');
 
   // CSRFトークンを取得して状態にセットする関数
   const fetchCsrfToken = async () => {
@@ -20,10 +25,6 @@ function Header({role}) {
     } else {
       throw new Error('CSRF token is not found in response');
     }
-  };
-
-  const handleCartClick = () => {
-    navigate('/cart-item');  // 'history.push' の代わりに 'navigate.push'
   };
   
   const handleLogout = async () => {
@@ -64,6 +65,19 @@ function Header({role}) {
     } else {
       console.log('キャンセルされました');
     }
+  };
+
+  // ユーザーボタンクリックハンドラ
+  const handleUserClick = () => {
+    navigate('/user');
+  };
+
+  const handleCartClick = () => {
+    navigate('/cart-item');  // 'navigate.push'
+  };
+
+  const handleAllorderClick = () => {
+    navigate('/CheckAllOrders');  // 'navigate.push'
   };
 
   return (
@@ -122,17 +136,25 @@ function Header({role}) {
                 漢字手書き
               </a>
             </div>
+              
             <div className="d-flex ml-auto">
+              {role !== 'viewer' && (
+                  <div className="mr-2">
+                    <button className="btn btn-outline-primary" onClick={handleAllorderClick}>
+                      All Order
+                    </button>
+                  </div>
+                )}
               <div className="mr-2">
                 <button className="btn btn-outline-primary" onClick={handleCartClick}>
-                  Cart
+                  <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" />
                 </button>
               </div>
-              <div>
-                <button className="btn btn-outline-danger" onClick={handleLogout}>
-                  ログアウト
-                </button>
-              </div>
+              {/* User Dropdown Menu */}
+              <NavDropdown title={<FontAwesomeIcon icon={faUser}/>} id="basic-nav-dropdown">
+                <NavDropdown.Item onClick={handleUserClick}>注文履歴</NavDropdown.Item>
+                <NavDropdown.Item className="custom-logout-item" onClick={handleLogout}>ログアウト</NavDropdown.Item>
+              </NavDropdown>
             </div>
           </div>
         </nav>

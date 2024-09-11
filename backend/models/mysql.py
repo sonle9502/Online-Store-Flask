@@ -22,6 +22,176 @@ class MysqlClass:
         )
     
     @classmethod
+    def update_quantity(cls, cartItemId, quantity):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                    UPDATE cart_item
+                    SET quantity = %s
+                    WHERE cart_item_id = %s; 
+                """
+                cursor.execute(sql, (quantity,cartItemId,))  # Note the comma to create a tuple
+                connection.commit()
+                return True  # Return None if no address is found
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # Rollback the transaction on error
+            return None
+        finally:
+            connection.close()
+
+    @classmethod
+    def update_delivery_status(cls, order_item_id, new_status, userId):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                    UPDATE order_items
+                    SET delivery_status = %s,
+                        Editor = %s
+                    WHERE order_item_id = %s; 
+                """
+                cursor.execute(sql, (new_status,userId,order_item_id,))  # Note the comma to create a tuple
+                connection.commit()
+                return True  # Return None if no address is found
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # Rollback the transaction on error
+            return None
+        finally:
+            connection.close()
+
+    @classmethod
+    def get_all_orders(cls,):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                    SELECT 
+                        o.order_date,
+                        o.tracking_number,
+                        oi.product_id,
+                        oi.quantity,
+                        oi.price,
+                        i.data,
+                        oi.delivery_status,
+                        u.shipping_address,
+                        o.user_id,
+                        oi.order_item_id,
+                        oi.Editor
+                    FROM 
+                        orders o
+                    JOIN 
+                        order_items oi ON o.id = oi.order_id
+                    JOIN 
+                        image i ON oi.product_id = i.todo_id
+                    JOIN 
+                        users u ON u.id = o.user_id
+                    ORDER BY 
+                        o.order_date DESC;
+                """
+                cursor.execute(sql,)  # Note the comma to create a tuple
+                connection.commit()
+                # Fetch results
+                result = cursor.fetchall()
+                return result  # Return None if no address is found
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # Rollback the transaction on error
+            return None
+        finally:
+            connection.close()
+    @classmethod
+    def update_address(cls, user_id, address):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                    UPDATE users
+                    SET shipping_address = %s
+                    WHERE id = %s; 
+                """
+                cursor.execute(sql, (address,user_id,))  # Note the comma to create a tuple
+                connection.commit()
+                return True  # Return None if no address is found
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # Rollback the transaction on error
+            return None
+        finally:
+            connection.close()
+
+    @classmethod
+    def get_user_address(cls, user_id):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                    SELECT 
+                        u.shipping_address
+                    FROM 
+                        users u
+                    WHERE 
+                        u.id = %s
+                """
+                cursor.execute(sql, (user_id,))  # Note the comma to create a tuple
+                connection.commit()
+                
+                # Fetch a single result
+                result = cursor.fetchone()  # Use fetchone() to retrieve a single row
+                if result:
+                    address = result[0]  # Access the address in the result tuple
+                    return address
+                else:
+                    return None  # Return None if no address is found
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # Rollback the transaction on error
+            return None
+        finally:
+            connection.close()
+
+
+    @classmethod
+    def get_order_item(cls, user_id):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                    SELECT 
+                    o.order_date,
+                    o.tracking_number,
+                    oi.product_id,
+                    oi.quantity,
+                    oi.price,
+                    i.data,
+                    oi.delivery_status
+                    FROM 
+                        orders o
+                    JOIN 
+                        order_items oi ON o.id = oi.order_id
+                    JOIN 
+                    image i ON oi.product_id = i.todo_id
+                    WHERE 
+                        o.user_id = %s
+                    ORDER BY 
+                        o.order_date DESC;
+                """
+                cursor.execute(sql, (user_id,))  # Note the comma to create a tuple
+                connection.commit()
+                
+                # Fetch results
+                result = cursor.fetchall()  # Use fetchall() to retrieve all rows
+                return result
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # トランザクションのロールバック
+            return None
+        finally:
+            connection.close()
+
+    @classmethod
     def create_order(cls, user_id, total_amount):
         connection = cls.connect_db()
         try:
@@ -44,8 +214,25 @@ class MysqlClass:
         try:
             with connection.cursor() as cursor:
                 # カートアイテムを削除するクエリ
-                sql = "DELETE FROM cart_item WHERE cart_id IN (SELECT cart_id FROM cart WHERE user_id = %s)"
+                sql = """
+                        DELETE FROM cart_item
+                        WHERE cart_id IN (
+                            SELECT cart_id
+                            FROM cart
+                            WHERE status != "completed" and user_id = %s
+                        );
+                    """
                 cursor.execute(sql, (user_id,))
+
+                
+                # カートのステータスを更新するクエリ
+                update_sql = """
+                    UPDATE cart
+                    SET status = 'completed'
+                    WHERE user_id = %s;
+                """
+                # クエリに渡すためにタプルに変換
+                cursor.execute(update_sql, (user_id,))
                 connection.commit()
                 return True
         except MySQLdb.MySQLError as e:

@@ -6,7 +6,10 @@ import TaskDetail from './pages/TaskDetail';
 import Handwritten from './pages/Handwritten';
 import Kanjiwriten from './pages/Kanjiwriten';
 import LoginForm from './pages/LoginForm';
+import UserPage from './pages/UserPage';
 import BuyNow from './pages/BuyNowComponent';
+import EditUserInfo from './pages/EditUserInfo';
+import CheckAllOrders from './pages/CheckAllOrders';
 import CartItem from './pages/CartItem ';
 
 function App() {
@@ -21,6 +24,9 @@ function App() {
           <Route path="/task/:taskId" element={<TaskDetail />} /> 
           <Route path="/cart-item" element={<CartItem />} /> 
           <Route path="/buynow" element={<BuyNow />} /> 
+          <Route path="/user" element={<UserPage />} /> 
+          <Route path="/EditUserInfo" element={<EditUserInfo />} /> 
+          <Route path="/CheckAllOrders" element={<CheckAllOrders />} /> 
           <Route path="/handwritten" element={<Handwritten />} /> 
           <Route path="/kanjihandwriting" element={<Kanjiwriten />} /> 
           {/* 他のルートをここに追加 */}

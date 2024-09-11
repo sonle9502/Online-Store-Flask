@@ -6,6 +6,7 @@ const DisplayUnitPrice = ({ taskId, unitPrice, onSave }) => {
   const [price, setPrice] = useState(unitPrice);
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef(null);
+  const [role] = useState(localStorage.getItem('role') || '');
 
   // CSRFトークンを取得して状態にセットする関数
   const fetchCsrfToken = async () => {
@@ -70,7 +71,7 @@ const DisplayUnitPrice = ({ taskId, unitPrice, onSave }) => {
 
   return (
     <div className="unit-price-container">
-      {isEditing ? (
+      {isEditing && role === 'admin' ? (
         <input
           type="number"
           className="unit-price-input"
@@ -88,10 +89,12 @@ const DisplayUnitPrice = ({ taskId, unitPrice, onSave }) => {
         <p
           className="unit-price"
           onClick={() => {
-            setIsEditing(true);
-            setTimeout(() => {
-              inputRef.current?.focus(); // 編集モードに切り替えた後、フォーカスを設定
-            }, 0);
+            if (role === 'admin') {
+              setIsEditing(true);
+              setTimeout(() => {
+                inputRef.current?.focus(); // 編集モードに切り替えた後、フォーカスを設定
+              }, 0);
+            }
           }}
         >
           {formatPrice(price)} {/* フォーマットされた価格を表示 */}
@@ -100,5 +103,6 @@ const DisplayUnitPrice = ({ taskId, unitPrice, onSave }) => {
     </div>
   );
 };
+
 
 export default DisplayUnitPrice;
