@@ -133,7 +133,7 @@ const deleteTask = async (taskId, query) => {
     <div className="task-list">
       <div className="container">
         <div className="list-group">
-          <h1 style={{ color: 'black' }}>Hello, My tasks!</h1>
+          <h1 style={{ color: 'black' }}>Hello, My Shop!</h1>
           {(query ? results : tasks).length === 0 ? (
             <p>No tasks found.</p>
           ) : (
@@ -217,7 +217,7 @@ const deleteTask = async (taskId, query) => {
               <UploadImages taskId={task.id} onUploadSuccess={() => query ? fetchResults(query) : fetchTasks()} role={role} />
               )}
               {/* ■ 追加された行 */}
-              <div style={{ marginTop: '10px' }}>
+              <div style={{ marginTop: '0px' }}>
                 <a href="" 
                 onClick={() => navigate(`/task/${task.id}`, { state: { taskFlist: task } })}>
                 今すぐチェック

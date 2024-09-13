@@ -47,13 +47,29 @@ const AddressItem = styled.li`
   text-align: left; /* テキストを左寄せにする */
 `;
 
+const Loader = styled.div`
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #007bff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+  display: block;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 const UserPage = () => {
   const navigate = useNavigate();
   const [orderItems, setOrderItems] = useState([]); // Corrected casing for consistency
-  const [newAddress, setNewAddress] = useState('');
   const [userId] = useState(localStorage.getItem('userId') || '');
   const [addresses, setAddresses] = useState([]);
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+
 
   const fetchCsrfToken = async () => {
     const response = await fetch(`${API_BASE_URL}/api/get-csrf-token`, {
@@ -75,13 +91,14 @@ const UserPage = () => {
         console.error('User ID is missing in localStorage');
         return;
       }
-
+  
       const csrfToken = await fetchCsrfToken();
       if (!csrfToken) {
         console.error('CSRF token is missing');
+        setLoading(false); // ロード状態を終了
         return;
       }
-
+  
       const response = await fetch(`${API_BASE_URL}/api/order-items`, {
         method: 'POST',
         headers: {
@@ -91,11 +108,11 @@ const UserPage = () => {
         credentials: 'include',
         body: JSON.stringify({ user_id: userId }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         setOrderItems(data.order_items || []); // Ensure orderItems is always an array
-        console.log(data)
+        console.log(data);
       } else {
         console.error(`Failed to fetch order items: ${response.status} ${response.statusText}`);
         setOrderItems([]); // Reset to empty array on error
@@ -103,8 +120,11 @@ const UserPage = () => {
     } catch (error) {
       console.error('Error fetching order items:', error.message);
       setOrderItems([]); // Reset to empty array on error
+    } finally {
+      setLoading(false); // ロード状態を終了
     }
   };
+  
 
   const calculateItemSubtotal = (item) => {
     let quantity = 0;
@@ -161,6 +181,7 @@ const UserPage = () => {
         const data = await response.json();
         console.log('Fetched addresses:', data); // デバッグ
         setAddresses(data.address || []);
+        setLoading(false);
       } else {
         console.error(`Failed to fetch addresses: ${response.status} ${response.statusText}`);
         console.log('addresses**',addresses.length)
@@ -171,7 +192,7 @@ const UserPage = () => {
   };
   
   const handleAddressClick = () => {
-    navigate('/EditUserInfo');
+    navigate('/EditAddress');
   };
 
   useEffect(() => {
@@ -183,45 +204,51 @@ const UserPage = () => {
   return (
     <div>
       <Header />
-      <AddressItem onClick={handleAddressClick} style={{ cursor: 'pointer' }}>
-        {addresses.length === 0 ? (
-          <>配達住所： 住所を入力してください</> // 住所がない場合のメッセージ
+      {isLoading ? (
+        <Loader />
         ) : (
-          <>配達住所： {addresses}</> // 住所がある場合に配達住所を表示
-        )}
-      </AddressItem>
-      <Container>
-        <h2>注文履歴</h2>
-        {orderItems && orderItems.length > 0 ? ( // Ensure orderItems is defined
-          <ul>
-            {orderItems.map((item) => (
-              <ListItem key={item.cart_item_id}>
-                {item.image && (
-                  <Image
-                    src={`data:image/jpeg;base64,${item.image}`}
-                    alt={`Product ${item.product_id}`}
-                  />
+      <>
+        <AddressItem onClick={handleAddressClick} style={{ cursor: 'pointer' }}>
+                {addresses.length === 0 ? (
+                  <>配達住所： 住所を入力してください。</> // 住所がない場合のメッセージ
+                ) : (
+                  <>配達住所： {addresses}</> // 住所がある場合に配達住所を表示
                 )}
-                <p>
-                  <p>delivery_status: {item.delivery_status}</p>
-                  <p>注文日: {new Date(item.order_date).toLocaleDateString('ja-JP')} {new Date(item.order_date).toLocaleTimeString('ja-JP')}</p>
-                  <p>商品_ID: {item.product_id}</p>
-                </p>
-                <ItemDetails>
-                  <p>Tracking_number: {item.tracking_number}</p>
-                  <p>Unit Price: {formatCurrency(item.unitPrice)} </p>
-                  <p>Quantity: {item.quantity} </p>
-                  <p>Subtotal: {formatCurrency(calculateItemSubtotal(item))}</p>
-                </ItemDetails>
-              </ListItem>
-            ))}
-          </ul>
-        ) : (
-          <p>No items in your cart.</p>
-        )}
-        <h3>Total: {formatCurrency(calculateTotal())}</h3>
-        <h2>ポイント残高</h2>
-      </Container>
+        </AddressItem>
+        <Container>
+          <h2>注文履歴</h2>
+          {orderItems && orderItems.length > 0 ? ( // Ensure orderItems is defined
+            <ul>
+              {orderItems.map((item) => (
+                <ListItem key={item.cart_item_id}>
+                  {item.image && (
+                    <Image
+                      src={`data:image/jpeg;base64,${item.image}`}
+                      alt={`Product ${item.product_id}`}
+                    />
+                  )}
+                  <p>
+                    <p>delivery_status: {item.delivery_status}</p>
+                    <p>注文日: {new Date(item.order_date).toLocaleDateString('ja-JP')} {new Date(item.order_date).toLocaleTimeString('ja-JP')}</p>
+                    <p>商品_ID: {item.product_id}</p>
+                  </p>
+                  <ItemDetails>
+                    <p>Tracking_number: {item.tracking_number}</p>
+                    <p>Unit Price: {formatCurrency(item.unitPrice)} </p>
+                    <p>Quantity: {item.quantity} </p>
+                    <p>Subtotal: {formatCurrency(calculateItemSubtotal(item))}</p>
+                  </ItemDetails>
+                </ListItem>
+              ))}
+            </ul>
+          ) : (
+            <p>No items in your cart.</p>
+          )}
+          <h3>Total: {formatCurrency(calculateTotal())}</h3>
+          <h2>ポイント残高</h2>
+        </Container>
+      </>
+      )}
     </div>
   );
 };

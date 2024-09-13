@@ -223,6 +223,20 @@ const CheckAllOrders = () => {
     }).format(amount);
   };
 
+  const ColumnFilter = ({ column: { filterValue, preFilteredRows, setFilter } }) => {
+    return (
+      <input
+        value={filterValue || ''}
+        onChange={e => setFilter(e.target.value || undefined)} // フィルタを空にするには undefined を設定
+        placeholder={`Search ${preFilteredRows.length} records...`}
+        style={{
+          marginTop: '5px',
+          marginBottom: '5px',
+        }}
+      />
+    );
+  };
+
   const updateMyData = (rowIndex, columnId, value) => {
     setOrderItems(old =>
       old.map((row, index) => {
@@ -242,6 +256,11 @@ const CheckAllOrders = () => {
       {
         Header: 'UserID',
         accessor: 'user_id',
+      }
+      ,
+      {
+        Header: 'Order_item_id',
+        accessor: 'order_item_id',
       }
       ,
       {
@@ -275,6 +294,7 @@ const CheckAllOrders = () => {
       {
         Header: 'Shipping Address',
         accessor: 'shipping_address',
+        // Filter: ColumnFilter,
       }
       ,
       {
@@ -307,6 +327,8 @@ const CheckAllOrders = () => {
     [orderItems]
   );
 
+  
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, setGlobalFilter, state: { globalFilter } } = useTable(
     {
       columns,
@@ -314,7 +336,7 @@ const CheckAllOrders = () => {
       updateMyData,
     },
     useGlobalFilter,
-    useFilters
+    // useFilters
   );
 
   useEffect(() => {

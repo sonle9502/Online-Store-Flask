@@ -1,4 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+
+const PaymentContainer = styled.li`
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  background-color: ${props => (props.selected ? '#f0f0f0' : '#fff')};
+  text-align: left;
+`;
 
 // 決済方法のオプション
 const PAYMENT_METHODS = {
@@ -6,29 +17,30 @@ const PAYMENT_METHODS = {
   PAYPAL: 'PayPal',
 };
 
-const PaymentCalculator = () => {
-  const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS.CREDIT_CARD);
+const PaymentCalculator = ({ selectedMethod, onPaymentMethodChange }) => {
+  const [currentMethod, setCurrentMethod] = useState(selectedMethod || PAYMENT_METHODS.CREDIT_CARD);
 
-  // 決済方法が変更されたときの処理
+  useEffect(() => {
+    setCurrentMethod(selectedMethod);
+  }, [selectedMethod]);
+
   const handleMethodChange = (e) => {
-    setSelectedMethod(e.target.value);
+    const newMethod = e.target.value;
+    setCurrentMethod(newMethod);
+    onPaymentMethodChange(newMethod);
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-      <div>
-        <label>
-          決済方法:
-          <select value={selectedMethod} onChange={handleMethodChange} style={{ margin: '0 10px' }}>
-            {Object.values(PAYMENT_METHODS).map((method) => (
-              <option key={method} value={method}>
-                {method}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-    </div>
+    <PaymentContainer>
+      決済方法:
+      <select value={currentMethod} onChange={handleMethodChange} style={{ margin: '0 10px' }}>
+        {Object.values(PAYMENT_METHODS).map((method) => (
+          <option key={method} value={method}>
+            {method}
+          </option>
+        ))}
+      </select>
+    </PaymentContainer>
   );
 };
 

@@ -22,6 +22,55 @@ class MysqlClass:
         )
     
     @classmethod
+    def get_user_info(cls, user_id):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                    SELECT 
+                        u.email,
+                        u.username,
+                        u.shipping_address,
+                        u.payment_method
+                    FROM 
+                        users u
+                    WHERE 
+                        u.id = %s
+                """
+                cursor.execute(sql, (user_id,))  # Note the comma to create a tuple
+                connection.commit()
+                
+                # Fetch results
+                result = cursor.fetchall()  # Use fetchall() to retrieve all rows
+                return result
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # トランザクションのロールバック
+            return None
+        finally:
+            connection.close()
+
+    @classmethod
+    def update_user_info(cls, userId, address, paymentMethod):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                   UPDATE users
+                    SET shipping_address = %s, payment_method = %s
+                    WHERE id = %s;
+                """
+                cursor.execute(sql, (address, paymentMethod,userId,))  # Note the comma to create a tuple
+                connection.commit()
+                return True  # Return None if no address is found
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # Rollback the transaction on error
+            return None
+        finally:
+            connection.close()
+
+    @classmethod
     def update_quantity(cls, cartItemId, quantity):
         connection = cls.connect_db()
         try:
@@ -89,6 +138,12 @@ class MysqlClass:
                     JOIN 
                         users u ON u.id = o.user_id
                     ORDER BY 
+                        CASE 
+                            WHEN oi.delivery_status = 'Processing' THEN 1   -- 'Processing' の場合、1（最初に表示）
+                            WHEN oi.delivery_status = 'Completed' THEN 2    -- 'Completed' の場合、2（次に表示）
+                            WHEN oi.delivery_status = 'Shipped' THEN 3      -- 'Shipped' の場合、3（最後に表示）
+                            ELSE 4                                          -- 他の値がある場合、4（最後に表示）
+                        END,
                         o.order_date DESC;
                 """
                 cursor.execute(sql,)  # Note the comma to create a tuple
@@ -129,7 +184,8 @@ class MysqlClass:
             with connection.cursor() as cursor:
                 sql = """
                     SELECT 
-                        u.shipping_address
+                        u.shipping_address,
+                        u.payment_method
                     FROM 
                         users u
                     WHERE 
@@ -140,11 +196,8 @@ class MysqlClass:
                 
                 # Fetch a single result
                 result = cursor.fetchone()  # Use fetchone() to retrieve a single row
-                if result:
-                    address = result[0]  # Access the address in the result tuple
-                    return address
-                else:
-                    return None  # Return None if no address is found
+                return result
+
         except MySQLdb.MySQLError as e:
             print(f"Error: {e}")
             connection.rollback()  # Rollback the transaction on error
@@ -192,13 +245,13 @@ class MysqlClass:
             connection.close()
 
     @classmethod
-    def create_order(cls, user_id, total_amount):
+    def create_order(cls, user_id, total_amount, tracking_number):
         connection = cls.connect_db()
         try:
             with connection.cursor() as cursor:
                 # 注文を作成するクエリ
-                sql = "INSERT INTO orders (user_id, total_amount, status) VALUES (%s, %s, 'completed')"
-                cursor.execute(sql, (user_id, total_amount))
+                sql = "INSERT INTO orders (user_id, total_amount, status, tracking_number) VALUES (%s, %s, 'completed', %s)"
+                cursor.execute(sql, (user_id, total_amount, tracking_number))
                 connection.commit()
                 return cursor.lastrowid  # 新しい注文のIDを返す
         except MySQLdb.MySQLError as e:
@@ -314,6 +367,7 @@ class MysqlClass:
             return None
         finally:
             connection.close()
+
     @classmethod
     def get_cart_item(cls, user_id):
         connection = cls.connect_db()

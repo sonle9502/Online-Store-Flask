@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 80px;
   max-width: 900px; /* Adjust the maximum width as needed */
   margin: 0 auto; /* Center the container */
 `;
 
 const ListItem = styled.li`
   display: flex;
+  margin-top: 20px; 
   align-items: flex-start; /* Align items at the start */
   margin-bottom: 20px;
   padding: 10px;
@@ -49,20 +50,53 @@ const DeleteButton = styled.button`
 `;
 
 const AddressItem = styled.li`
-  padding: 10px;
-  border: 1px solid #ddd;
+  padding: 00px;
+  border: 0px solid #ddd;
+  padding-left: 0px; 
   border-radius: 5px;
-  margin-top: 70px; 
+  margin-top: 0px; 
+  margin-bottom: 0px; /* 下部のマージンを設定 */
+  cursor: pointer;
+  background-color: ${props => (props.selected ? '#f0f0f0' : '#fff')};
+  text-align: left; /* テキストを左寄せにする */
+`;
+
+const Payment_method = styled.li`
+  padding: 10px;
+  padding-left: 0px; 
+  border: 0px solid #ddd;
+  border-radius: 5px;
+  margin-top: 5px; 
   margin-bottom: 10px; /* 下部のマージンを設定 */
   cursor: pointer;
   background-color: ${props => (props.selected ? '#f0f0f0' : '#fff')};
   text-align: left; /* テキストを左寄せにする */
 `;
 
+const Loader = styled.div`
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #007bff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+  display: block;
+  position: relative; /* Add position relative */
+  top: 70px;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 const CartItem = () => {
   const [cartItems, setCartItems] = useState([]);
   const [addresses, setAddresses] = useState([]);
+  const [payment_method, setPayment_method] = useState([]);
   const [userId] = useState(localStorage.getItem('userId') || '');
+  const [isLoading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const fetchCsrfToken = async () => {
@@ -191,7 +225,7 @@ const CartItem = () => {
           console.log('User canceled the purchase process');
           return;
         }
-        navigate('/EditUserInfo');
+        navigate('/EditAddress');
         return
         // Optionally, you can redirect to an address input page here
         // navigate('/address-input'); // Example: redirect to address input page
@@ -276,8 +310,11 @@ const CartItem = () => {
   
       if (response.ok) {
         const data = await response.json();
+        console.log("address",data)
         console.log('Fetched addresses:', data); // デバッグ
         setAddresses(data.address || []);
+        setPayment_method(data.payment_method || [])
+        setLoading(false); // ローディング状態を解除
       } else {
         console.error(`Failed to fetch addresses: ${response.status} ${response.statusText}`);
       }
@@ -287,7 +324,11 @@ const CartItem = () => {
   };
 
   const handleAddressClick = () => {
-    navigate('/EditUserInfo');
+    navigate('/EditAddress');
+  };
+
+  const handlePaymentMethod = () => {
+    navigate('/SettingUser');
   };
 
   useEffect(() => {
@@ -298,15 +339,27 @@ const CartItem = () => {
   return (
     <div>
       <Header />
-      <AddressItem onClick={handleAddressClick} style={{ cursor: 'pointer' }}>
-        {addresses.length === 0 ? (
-          <>配達住所： 住所を入力してください</> // 住所がない場合のメッセージ
-        ) : (
-          <>配達住所： {addresses}</> // 住所がある場合に配達住所を表示
-        )}
-      </AddressItem>
       <Container>
-        <h2>Your Cart</h2>
+          <h1>Your Cart</h1>
+        {isLoading ? (
+        <Loader />
+          ) : (
+            <>
+            <AddressItem onClick={handleAddressClick} style={{ cursor: 'pointer' }}>
+          
+              {addresses.length === 0 ? (
+                <>配達住所： 住所を入力してください。</> // 住所がない場合のメッセージ
+              ) : (
+                <>配達住所： {addresses}</> // 住所がある場合に配達住所を表示
+              )}
+            </AddressItem>
+            <Payment_method onClick={handlePaymentMethod} style={{ cursor: 'pointer' }}>
+              {payment_method.length === 0 ? (
+                <>Payment_method： Loading...</> // 住所がない場合のメッセージ
+              ) : (
+                <>Payment_method： {payment_method}</> // 住所がある場合に配達住所を表示
+              )}
+            </Payment_method>
         {cartItems.length > 0 ? (
           <ul>
             {cartItems.map((item) => (
@@ -343,7 +396,12 @@ const CartItem = () => {
         )}
         <h3>Total: {formatCurrency(calculateTotal())}</h3>
         <button onClick={handlePurchase}>上記で買う</button>
+
+        
+      </>
+    )}
       </Container>
+      
     </div>
   );
 };

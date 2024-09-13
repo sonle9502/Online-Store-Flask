@@ -14,9 +14,9 @@ const AddressContainer = styled.li`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 90%;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   border: 1px solid #ddd;
   border-radius: 5px;
 `;
@@ -32,7 +32,7 @@ const Button = styled.button`
 `;
 
 
-const AddressItem = ({ address, selected, onClick }) => {
+const AddressItem = ({ address, selected, param }) => {
   const navigate = useNavigate();
   const [addressValue, setAddresses] = useState(address || '');
   const [userId] = useState(localStorage.getItem('userId') || '');
@@ -108,16 +108,15 @@ const AddressItem = ({ address, selected, onClick }) => {
       console.error('Error updating address:', error.message);
     }
   };
-  
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    }
-  };
 
   useEffect(() => {
     fetchUserAddresses();
   }, []);
+
+  const handleBlur = (e) => {
+    const newAddress = e.target.value;
+    setAddresses(newAddress);
+  };
 
   return (
     <AddressContainer selected={selected} >
@@ -126,9 +125,11 @@ const AddressItem = ({ address, selected, onClick }) => {
         type="text"
         value={addressValue}
         onChange={(e) => setAddresses(e.target.value)}
-        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
       />
-      <Button onClick={handleSave}>Save</Button>
+      {param !== 'setting' && (
+            <Button onClick={handleSave}>Save</Button>
+          )}
     </AddressContainer>
   );
 };

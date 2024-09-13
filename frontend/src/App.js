@@ -8,8 +8,9 @@ import Kanjiwriten from './pages/Kanjiwriten';
 import LoginForm from './pages/LoginForm';
 import UserPage from './pages/UserPage';
 import BuyNow from './pages/BuyNowComponent';
-import EditUserInfo from './pages/EditUserInfo';
+import EditAddress from './pages/EditAddress';
 import CheckAllOrders from './pages/CheckAllOrders';
+import SettingUser from './pages/SettingUser';
 import CartItem from './pages/CartItem ';
 
 function App() {
@@ -25,8 +26,9 @@ function App() {
           <Route path="/cart-item" element={<CartItem />} /> 
           <Route path="/buynow" element={<BuyNow />} /> 
           <Route path="/user" element={<UserPage />} /> 
-          <Route path="/EditUserInfo" element={<EditUserInfo />} /> 
+          <Route path="/EditAddress" element={<EditAddress />} /> 
           <Route path="/CheckAllOrders" element={<CheckAllOrders />} /> 
+          <Route path="/SettingUser" element={<SettingUser />} /> 
           <Route path="/handwritten" element={<Handwritten />} /> 
           <Route path="/kanjihandwriting" element={<Kanjiwriten />} /> 
           {/* 他のルートをここに追加 */}

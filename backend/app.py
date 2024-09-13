@@ -26,6 +26,8 @@ from flask_sqlalchemy import SQLAlchemy
 from users.usermodels import User
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from functools import wraps
+import random
+import string
 
 # 各種設定と拡張機能のインスタンス化
 flask_sqlalchemy = 0
@@ -172,6 +174,11 @@ def predict_audio():
     # モデルの推論コードをここに記述
     prediction = "dummy_result"  # モデルの予測結果
     return jsonify({'prediction': prediction})
+
+def generate_tracking_number():
+    date_part = datetime.now().strftime("%Y%m%d%H%M%S")  # 現在の日時をベースにした部分
+    random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))  # ランダムな文字列
+    return f'TN{date_part}{random_part}'
 
 #getimage
 @app.route('/image/<int:id>')
@@ -567,8 +574,9 @@ def purchase():
         total_amount_from_db = MysqlClass.get_total_amount(user_id)
 
         if total_amount == total_amount_from_db:
+            tracking_number = generate_tracking_number()
             # 金額が一致する場合、注文を作成
-            order_id = MysqlClass.create_order(user_id, total_amount )
+            order_id = MysqlClass.create_order(user_id, total_amount, tracking_number )
 
             if order_id:
                 # カートアイテムを注文アイテムとして移行
@@ -620,7 +628,39 @@ def update_delivery_status():
         return jsonify({"message": "Item update successfully"}), 200
     else:
         return jsonify({"message": "Item not found or error occurred"}), 404
-
+    
+@app.route('/api/update-user-info', methods=['POST'])
+def update_user_info():
+    data = request.json
+    userId = data.get('user_id')
+    address = data.get('address')
+    paymentMethod = data.get('paymentMethod')
+    
+    # MySQLから画像データを取得
+    success = MysqlClass.update_user_info(userId, address, paymentMethod)
+    if success:
+        return jsonify({"message": "Item update successfully"}), 200
+    else:
+        return jsonify({"message": "Item not found or error occurred"}), 404
+    
+@app.route('/api/get-user-info', methods=['POST'])
+def get_user_info():
+    data = request.json
+    userId = data.get('user_id')
+    # MySQLからユーザー情報を取得
+    result = MysqlClass.get_user_info(userId)
+    if result:
+        # 結果を整形して返す
+        item = result[0]  # 配列の最初の要素を取得
+        item_data = {
+            "email": item[0],
+            "username": item[1],
+            "address": item[2],
+            "paymentMethod": item[3],
+        }
+        return jsonify(item_data), 200
+    else:
+        return jsonify({"message": "No user_info found or error occurred"}), 404
 
 # GET order-item
 @app.route('/api/all-orders', methods=['POST'])
@@ -698,9 +738,14 @@ def manage_user_addresses():
         # ここで MySQL からユーザーの住所データを取得
         result = MysqlClass.get_user_address(user_id)
         if result:
-            return jsonify({"address": result}), 200
+            # Format the result
+            item_data = {
+                "address": result[0],
+                "payment_method": result[1],
+            }
+            return jsonify(item_data)
         else:
-            return jsonify({"message": "No addresses found or an error occurred","address": result}), 404
+            return jsonify({"message": "No cart items found or error occurred"}), 404
 
     if request.method == 'PUT':
         data = request.get_json()
