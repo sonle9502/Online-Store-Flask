@@ -22,6 +22,26 @@ class MysqlClass:
         )
     
     @classmethod
+    def update_quantity_title(cls, task_id, quantity_title):
+        connection = cls.connect_db()
+        try:
+            with connection.cursor() as cursor:
+                sql = """
+                   UPDATE todo
+                    SET quantity_title = %s
+                    WHERE id = %s;
+                """
+                cursor.execute(sql, (quantity_title, task_id,))  # Note the comma to create a tuple
+                connection.commit()
+                return True  # Return None if no address is found
+        except MySQLdb.MySQLError as e:
+            print(f"Error: {e}")
+            connection.rollback()  # Rollback the transaction on error
+            return None
+        finally:
+            connection.close()
+
+    @classmethod
     def get_user_info(cls, user_id):
         connection = cls.connect_db()
         try:

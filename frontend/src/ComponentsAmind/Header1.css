@@ -2,9 +2,13 @@
 .header {
   height: 60px;
   width: 100%;
-  position: fixed; /* fixedに変更 */
-  top: 0; /* ページの上部に固定 */
-  background-color: #d2e0ed;
+  position: fixed; /* fixed to keep it at the top */
+  top: 0; /* fixed at the top of the page */
+  /* background-image: url("C:/Users/s-le/Desktop/images/sushi.png");  */
+  background-size: cover; /* Ensures the image covers the entire header */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents the image from repeating */
+  background-color: #d2e0ed; /* Fallback color if the image doesn't load */
   padding: 0px 20px;
   border-bottom: 0px solid #dee2e6;
   display: flex;
@@ -69,4 +73,10 @@
 .cart-icon {
   color: #198754; /* 青色 */
   font-size: 1.0rem; /* アイコンのサイズを調整 */
+}
+
+/* Header1Styles.css */
+.header1 .nav-dropdown-icon {
+  font-size: 24px; /* Header1用のアイコンサイズ */
+  color: #007bff; /* Header1用のアイコン色 */
 }

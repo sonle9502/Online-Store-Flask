@@ -3,6 +3,7 @@ import { Navbar, Nav, NavDropdown, Button } from 'react-bootstrap';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { FaHome } from 'react-icons/fa';
 import './Header1.css'; // 必要に応じてスタイルを適用
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
@@ -98,19 +99,7 @@ function Header() {
                   state: { role: role }, // ここで状態を渡します
                 }}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-list-check"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0zm0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0zm0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"
-                  />
-                </svg>
+                <FaHome size={24} />  {/* Using FaHome icon from react-icons */}
                 Home
               </Link>
               <a className="navbar-brand" href="/handwritten">
@@ -155,7 +144,7 @@ function Header() {
                 </button>
               </div>
               {/* User Dropdown Menu */}
-              <NavDropdown title={<FontAwesomeIcon icon={faUser}/>} id="basic-nav-dropdown">
+              <NavDropdown title={<FontAwesomeIcon icon={faUser} className="nav-dropdown-icon"/>} id="basic-nav-dropdown">
                 <NavDropdown.Item onClick={handleUserClick}>注文履歴</NavDropdown.Item>
                 <NavDropdown.Item onClick={handleUserSettingClick}>UserSetting</NavDropdown.Item>
                 <NavDropdown.Item className="custom-logout-item" onClick={handleLogout}>ログアウト</NavDropdown.Item>

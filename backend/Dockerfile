@@ -1,10 +1,9 @@
-# Use a Python image
+# Backend
 FROM python:3.11
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
@@ -15,8 +14,12 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libjpeg-dev \
     zlib1g-dev \
-    libpng-dev \
-    && rm -rf /var/lib/apt/lists/*
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Upgrade pip
+RUN pip install --upgrade pip
 
 # Install Python dependencies
 COPY requirements.txt ./
@@ -25,14 +28,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# 'modelsAI' ディレクトリをコンテナ内にコピー
+# 'modelsAI' directory
 COPY modelsAI /app/modelsAI
 
-# Set environment variabless
+# Set environment variables
 ENV FLASK_ENV=development
-
-# Run database migrations
-RUN flask db upgrade
 
 # Expose port
 EXPOSE 5000

@@ -10,16 +10,21 @@ function HandwritingInput() {
     const [csrfToken, setCsrfToken] = useState('');
     const canvasRef = useRef(null);
 
-    useEffect(() => {
-        fetch(`${API_BASE_URL}/get-csrf-token`, {
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-            setCsrfToken(data.csrf_token);
-        })
-        .catch(error => console.error('Error fetching CSRF token:', error));
-    }, []);
+    // CSRFトークンを取得して状態にセットする関数
+  const fetchCsrfToken = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/get-csrf-token`, {
+      method: 'GET',
+      credentials: 'include'  // クッキーをサーバーと一緒に送信
+    });
+  
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data)
+      return data.csrf_token;
+    } else {
+      throw new Error('CSRF token is not found in response');
+    }
+  };
 
     const handleMouseDown = (event) => {
         const canvas = canvasRef.current;
@@ -37,11 +42,28 @@ function HandwritingInput() {
         ctx.stroke();
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = async () => {
         const canvas = canvasRef.current;
         canvas.removeEventListener('mousemove', handleMouseMove);
-        handleSubmit();  // 手書き入力後に自動で予測を実行
-    };
+    
+        try {
+            // CSRFトークンを取得
+            const csrfToken = await fetchCsrfToken();
+    
+            if (!csrfToken) {
+                console.error('CSRF token is missing');
+                return;
+            }
+    
+            // CSRFトークンのログ出力
+            console.log("CSRF Token:", csrfToken);
+    
+            // CSRFトークンを使ってhandleSubmitを呼び出し
+            handleSubmit(csrfToken);
+        } catch (error) {
+            console.error('Error fetching CSRF token:', error);
+        }
+    };    
 
     const handleClearCanvas = () => {
         const canvas = canvasRef.current;
@@ -50,35 +72,39 @@ function HandwritingInput() {
         setPredictions([]);  // 結果をクリア
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (csrfToken) => {
         setLoading(true);
         setError(null);
-
+    
         try {
             const canvas = canvasRef.current;
             const imageData = canvas.toDataURL('image/png');
 
+    
             const response = await axios.post(`${API_BASE_URL}/predict-image`, {
                 file: imageData , index : "number"
             }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-Token': csrfToken
-                }
+                },
+                withCredentials: true
             });
 
+    
             const sortedPredictions = response.data.predictions
-                .map((probability, index) => ({ probability, index })) 
-                .sort((a, b) => b.probability - a.probability); 
-
+                .map((probability, index) => ({ probability, index }))
+                .sort((a, b) => b.probability - a.probability);
+    
             setPredictions(sortedPredictions);
         } catch (error) {
-            const errorMessage = error.response?.data?.error || 'Error uploading the image';
+            const errorMessage = error.response?.data?.error || '画像のアップロードに失敗しました';
             setError(errorMessage);
         } finally {
             setLoading(false);
         }
     };
+    
 
     // 最も確率が高い予測を1つだけ取得
     const topPrediction = predictions.length > 0 ? predictions[0] : null;

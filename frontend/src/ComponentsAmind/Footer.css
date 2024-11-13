@@ -1,16 +1,21 @@
 /* Footer.css */
 .footer {
-  background-color: #007bff;
-  color: #110909;
+  background-color: #95adc8;
+  color: #fff; /* Improved contrast */
   padding: 10px 0;
   width: 100%;
-  z-index: 999;
+  z-index: 1000;
   position: fixed;
   bottom: 0;
-  display: block; /* Footerを表示 */
+  left: 0; /* Ensure full width */
+  text-align: center;
+  will-change: transform; /* Helps with rendering issues */
+  margin-top: 100px;
 }
 
-/* TaskList の余白調整 */
-.list-group {
-  padding-bottom: 60px; /* Footerの高さを考慮 */
+
+/* Ensure adequate padding at the bottom for content */
+.list-group,
+.content-container {
+  padding-bottom: 60px; /* Footer height consideration */
 }

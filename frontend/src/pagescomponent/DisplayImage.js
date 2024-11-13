@@ -20,6 +20,7 @@ const StyledImage = styled.img`
   border-radius: 5px;
   object-fit: cover; /* 画像のアスペクト比を保ちつつカバーする */
   display: block; /* 画像をブロック表示にする */
+  cursor: pointer;
 `;
 
 const DeleteButton = styled.button`

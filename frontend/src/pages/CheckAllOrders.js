@@ -30,7 +30,7 @@ const Td = styled.td`
   border: 1px solid #ddd;
 `;
 
-const Input = styled.input`
+const Input = styled.input.attrs({ type: 'search' })`
   padding: 5px;
   margin-bottom: 10px;
 `;

@@ -23,6 +23,8 @@ const TaskList = ({ role }) => {
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [quantityTitle, setQuantityTitle] = useState('');
 
   // CSRFトークンを取得して状態にセットする関数
   const fetchCsrfToken = async () => {
@@ -81,6 +83,7 @@ const TaskList = ({ role }) => {
       } else {
         const data = await response.json();
         setTasks(data);
+        console.log(data)
       }
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -127,7 +130,53 @@ const deleteTask = async (taskId, query) => {
     console.error('Error deleting task:', error);
   }
 };
-  const isFullWidth = false; 
+
+const handleSave = async () => {
+  try {
+    // CSRFトークンの取得
+    const csrfToken = await fetchCsrfToken();
+
+    if (!csrfToken) {
+      console.error('CSRF token is missing');
+      return;
+    }
+
+    // タスクの数量タイトルをサーバーに更新
+    const response = await fetch(`${API_BASE_URL}/api/update_quantity_title`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken,
+      },
+      body: JSON.stringify({ 
+        task_id: editingTaskId, // 編集しているタスクのID
+        quantity_title: quantityTitle, // 更新する数量タイトル
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    console.log('Update successful:', data);
+
+    // 成功後の処理
+    setEditingTaskId(null); // 編集モードを終了
+    fetchTasks(); // タスクを再取得して更新を反映
+
+  } catch (error) {
+    console.error('Error updating quantity title:', error);
+  }
+};
+
+const handleCancel = () => {
+  setQuantityTitle('');
+  setEditingTaskId(null);
+};
+
+const isFullWidth = false; 
 
   return (
     <div className="task-list">
@@ -179,7 +228,28 @@ const deleteTask = async (taskId, query) => {
               </ImageContainer >
               <div>
                 <span>
-                  Weight: {task.quantity_title}
+                  {role === 'admin' ? (
+                    editingTaskId === task.id ? (
+                      <div>
+                        <input
+                          type="text"
+                          value={quantityTitle}
+                          onChange={(e) => setQuantityTitle(e.target.value)}
+                        />
+                        <button onClick={handleSave}>Save</button>
+                        <button onClick={handleCancel}>Cancel</button>
+                      </div>
+                    ) : (
+                      <span onClick={() => {
+                        setQuantityTitle(task.quantity_title);
+                        setEditingTaskId(task.id);
+                      }}>
+                        {task.quantity_title}
+                      </span>
+                    )
+                  ) : (
+                    <span>{task.quantity_title}</span>
+                  )}
                   <UnitPrice 
                   unitPrice={task.unitPrice} 
                   taskId={task.id}

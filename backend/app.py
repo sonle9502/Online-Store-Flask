@@ -14,10 +14,10 @@ from forms import CommentForm
 from flask_wtf.csrf import CSRFProtect, generate_csrf ,CSRFError
 from flask_cors import CORS
 # import openai
-# import tensorflow as tf
+import tensorflow as tf
 # import torch
 import librosa
-import cv2
+# import cv2
 import numpy as np
 import base64
 import io
@@ -95,11 +95,11 @@ else:
     app.config.from_object(ProductionConfig)
 
 # モデルのロード
-# try:
-#     model = tf.keras.models.load_model('/app/modelsAI/editmodel.h5')
-#     print("Model loaded successfully!")
-# except Exception as e:
-#     print(f"Error loading model: {e}")
+try:
+    model = tf.keras.models.load_model('C:/Users/s-le/Desktop/study-private/Python/Online-Store-Flask/Online-Store-Flask/backend/modelsAI/editmodel.h5')
+    print("Model loaded successfully!")
+except Exception as e:
+    print(f"Error loading model: {e}")
 
 # getcsrftoken
 @app.route('/api/get-csrf-token', methods=['GET'])
@@ -145,7 +145,7 @@ def predict_image():
         # デバッグ用ログ
         logging.info("Calling changeImage()")
         image_array = changeImage.changeImage(datafile)
-        changeImage.saveimage(image_array)
+        # changeImage.saveimage(image_array)
         print(f"changeImage() returned shape: {np.array(image_array).shape}")
 
         if index_value == 'number':
@@ -616,6 +616,18 @@ def delete_cart_item():
             return jsonify({"message": "Item not found or error occurred"}), 404
     return jsonify({"message": "Invalid request method"}), 405
 
+@app.route('/api/update_quantity_title', methods=['POST'])
+def update_quantity_title():
+    data = request.json
+    task_id = data.get('task_id')
+    quantity_title = data.get('quantity_title')
+    # MySQLから画像データを取得
+    success = MysqlClass.update_quantity_title(task_id, quantity_title)
+    if success:
+        return jsonify({"message": "Item update successfully"}), 200
+    else:
+        return jsonify({"message": "Item not found or error occurred"}), 404
+    
 @app.route('/api/update-delivery-status', methods=['POST'])
 def update_delivery_status():
     data = request.json
