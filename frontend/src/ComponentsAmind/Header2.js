@@ -115,7 +115,7 @@ function Header2({ role }) {
           {/* roleが "admin" 場合のみ表示 */}
           {role === 'admin' && (
             <StyledButton className="btn btn-primary" onClick={handleCreateTask}>
-              Create New Task
+              Create New product
             </StyledButton>
           )}
         </StyledForm>

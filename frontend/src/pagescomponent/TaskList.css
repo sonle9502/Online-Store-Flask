@@ -25,8 +25,9 @@
 
 /* TaskList.css */
 .list-group {
-  width: 1100px;
-  margin: 0 auto;
+  width: 100%; /* リストを親要素の幅に合わせる */
+  max-width: 1100px; /* 最大幅を1100pxに制限 */
+  margin: 0 auto; /* 左右均等のマージン */
 }
 
 /* list-group-item のスタイル */
